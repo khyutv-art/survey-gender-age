@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>基本資料調查</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      color: #333;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .required { color: #e74c3c; margin-left: 2px; }
+
+    /* Radio / Checkbox 群組 */
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .options label {
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 2px solid #ddd;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+      color: #555;
+      user-select: none;
+    }
+
+    .pill:hover { border-color: #764ba2; color: #764ba2; }
+
+    input[type="radio"], input[type="checkbox"] { display: none; }
+
+    input[type="radio"]:checked + .pill,
+    input[type="checkbox"]:checked + .pill {
+      background: #764ba2;
+      border-color: #764ba2;
+      color: #fff;
+    }
+
+    /* 年齡滑桿 */
+    .age-display {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #764ba2;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #764ba2;
+      height: 6px;
+      cursor: pointer;
+    }
+
+    .age-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    /* 職業 select */
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      color: #444;
+      background: #fff;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23999' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    select:focus { outline: none; border-color: #764ba2; }
+
+    /* 送出按鈕 */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+
+    .btn:hover { opacity: 0.9; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* 訊息提示 */
+    .msg {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .msg.success { background: #d4edda; color: #155724; display: block; }
+    .msg.error   { background: #f8d7da; color: #721c24; display: block; }
+
+    /* 統計區塊 */
+    .stats-toggle {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .stats-toggle a {
+      color: #764ba2;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    #stats-panel {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: #f8f6ff;
+      border-radius: 12px;
+    }
+
+    #stats-panel h3 {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 14px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.88rem;
+    }
+
+    .stat-bar-wrap {
+      flex: 1;
+      margin: 0 10px;
+      height: 8px;
+      background: #e0d9f7;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .stat-bar {
+      height: 100%;
+      background: #764ba2;
+      border-radius: 4px;
+      transition: width 0.5s;
+    }
+
+    .stat-count { color: #764ba2; font-weight: 600; min-width: 24px; text-align: right; }
+
+    .total-count {
+      text-align: center;
+      color: #888;
+      font-size: 0.82rem;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>📋 基本資料調查</h1>
+  <p class="subtitle">只需 30 秒，感謝您的填寫！</p>
+
+  <form id="survey-form">
+
+    <!-- 性別 -->
+    <div class="form-group">
+      <label>性別 <span class="required">*</span></label>
+      <div class="options" id="gender-options">
+        <label><input type="radio" name="gender" value="男性" required /><span class="pill">♂ 男性</span></label>
+        <label><input type="radio" name="gender" value="女性" /><span class="pill">♀ 女性</span></label>
+        <label><input type="radio" name="gender" value="非二元" /><span class="pill">⚧ 非二元</span></label>
+        <label><input type="radio" name="gender" value="不願透露" /><span class="pill">🔒 不願透露</span></label>
+      </div>
+    </div>
+
+    <!-- 年齡 -->
+    <div class="form-group">
+      <label>年齡 <span class="required">*</span></label>
+      <div class="age-display"><span id="age-val">25</span> 歲</div>
+      <input type="range" id="age-slider" min="10" max="80" value="25"
+             oninput="document.getElementById('age-val').textContent = this.value" />
+      <div class="age-labels"><span>10 歲</span><span>80 歲</span></div>
+    </div>
+
+    <!-- 職業 -->
+    <div class="form-group">
+      <label>職業 <span class="required">*</span></label>
+      <select id="occupation" required>
+        <option value="" disabled selected>請選擇職業…</option>
+        <option value="學生">🎒 學生</option>
+        <option value="教師">📚 教師</option>
+        <option value="工程師">💻 工程師</option>
+        <option value="醫療人員">🏥 醫療人員</option>
+        <option value="商業/金融">💼 商業／金融</option>
+        <option value="服務業">🛎 服務業</option>
+        <option value="自由工作者">🎨 自由工作者</option>
+        <option value="家管">🏠 家管</option>
+        <option value="退休">🌿 退休</option>
+        <option value="其他">✨ 其他</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn" id="submit-btn">送出調查 →</button>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <div class="stats-toggle">
+    <a onclick="toggleStats()">📊 查看即時統計</a>
+  </div>
+
+  <div id="stats-panel">
+    <h3>性別分布</h3>
+    <div id="gender-stats"></div>
+    <h3 style="margin-top:14px">職業分布</h3>
+    <div id="occupation-stats"></div>
+    <div class="total-count" id="total-count"></div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js';
+  import {
+    getFirestore, collection, addDoc, onSnapshot, serverTimestamp
+  } from 'https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCrCkfx8s-rzIWyZuzpZf78GyyQCHXirEc",
+    authDomain: "khyutest.firebaseapp.com",
+    projectId: "khyutest",
+    storageBucket: "khyutest.firebasestorage.app",
+    messagingSenderId: "327931256610",
+    appId: "1:327931256610:web:bd7d7d6118907d81850f7b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  const col = collection(db, 'survey_responses');
+
+  // ── 表單送出 ──────────────────────────────────────────
+  document.getElementById('survey-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const gender     = document.querySelector('input[name="gender"]:checked')?.value;
+    const age        = parseInt(document.getElementById('age-slider').value);
+    const occupation = document.getElementById('occupation').value;
+
+    if (!gender || !occupation) {
+      showMsg('請完整填寫所有欄位！', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = '送出中…';
+
+    try {
+      await addDoc(col, { gender, age, occupation, created_at: serverTimestamp() });
+      showMsg('✅ 感謝您的填寫！', 'success');
+      btn.textContent = '已送出 ✓';
+    } catch (err) {
+      console.error(err);
+      showMsg('❌ 送出失敗，請稍後再試。', 'error');
+      btn.disabled = false;
+      btn.textContent = '送出調查 →';
+    }
+  });
+
+  function showMsg(text, type) {
+    const el = document.getElementById('msg');
+    el.textContent = text;
+    el.className = 'msg ' + type;
+  }
+
+  // ── 即時統計 ──────────────────────────────────────────
+  window.allDocs = [];
+
+  onSnapshot(col, (snap) => {
+    window.allDocs = snap.docs.map(d => d.data());
+    if (document.getElementById('stats-panel').style.display === 'block') renderStats();
+  });
+
+  window.toggleStats = function () {
+    const panel = document.getElementById('stats-panel');
+    if (panel.style.display === 'block') {
+      panel.style.display = 'none';
+    } else {
+      panel.style.display = 'block';
+      renderStats();
+    }
+  };
+
+  function renderStats() {
+    const docs = window.allDocs;
+    const total = docs.length;
+    document.getElementById('total-count').textContent = `共 ${total} 筆回應`;
+
+    renderDistribution('gender-stats', docs.map(d => d.gender));
+    renderDistribution('occupation-stats', docs.map(d => d.occupation));
+  }
+
+  function renderDistribution(containerId, values) {
+    const counts = {};
+    values.forEach(v => { if (v) counts[v] = (counts[v] || 0) + 1; });
+    const total = values.length || 1;
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+    const container = document.getElementById(containerId);
+    container.innerHTML = sorted.map(([label, count]) => `
+      <div class="stat-row">
+        <span style="min-width:80px;color:#555">${label}</span>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar" style="width:${Math.round(count/total*100)}%"></div>
+        </div>
+        <span class="stat-count">${count}</span>
+      </div>
+    `).join('');
+  }
+</script>
+
+</body>
+</html>

@@ -331,6 +331,17 @@
       await addDoc(col, { gender, age, occupation, created_at: serverTimestamp() });
       showMsg('✅ 感謝您的填寫！', 'success');
       btn.textContent = '已送出 ✓';
+
+      // 2 秒後重置表單，允許再次填寫
+      setTimeout(() => {
+        document.getElementById('survey-form').reset();
+        document.getElementById('age-val').textContent = '25';
+        document.getElementById('age-slider').value = 25;
+        document.getElementById('msg').className = 'msg';
+        btn.disabled = false;
+        btn.textContent = '送出調查 →';
+      }, 2000);
+
     } catch (err) {
       console.error(err);
       showMsg('❌ 送出失敗，請稍後再試。', 'error');
